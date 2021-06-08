@@ -1,20 +1,35 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class BoardPanel extends JPanel implements MouseListener{
 
     private Graphics2D g2D;
 
-    private boolean turn = true;
-
+    private Point[] boardPoints = new Point[9];
     private boolean[] Os = new boolean[9];
     private boolean[] Xs = new boolean[9];
-    private Point[] boardPoints = new Point[9];
+
+    private JLabel results;
+    private boolean turn = true;
+    private int numTurns = 0;
+    private boolean endGame = false;
+
+    private int[][] winStates = {
+        {0, 1, 2},
+        {3, 4, 5},
+        {6, 7, 8},
+        {0, 3, 6},
+        {1, 4, 7},
+        {2, 5, 8},
+        {0, 4, 8},
+        {2, 4, 6}
+    };
     
     public BoardPanel() {
+        this.setSize(500, 500);
+        this.setLayout(null);
         this.addMouseListener(this);
 
         boardPoints[0] = new Point(100, 100);
@@ -26,6 +41,9 @@ public class BoardPanel extends JPanel implements MouseListener{
         boardPoints[6] = new Point(100, 300);
         boardPoints[7] = new Point(200, 300);
         boardPoints[8] = new Point(300, 300);
+
+        results = new JLabel();
+        this.add(results);
     }
 
     @Override
@@ -54,26 +72,56 @@ public class BoardPanel extends JPanel implements MouseListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Point clickPoint = new Point();
-        clickPoint.x = e.getX();
-        clickPoint.y = e.getY();
+        if (!endGame) {
 
-        for (int i = 0; i < boardPoints.length; i++) {
-            if (clickPoint.x >= boardPoints[i].x && clickPoint.y >= boardPoints[i].y && clickPoint.x <= boardPoints[i].x + 100 && clickPoint.y <= boardPoints[i].y + 100) {
-                if (turn) {
-                    if (!Xs[i]) {
-                        Os[i] = true;
-                        turn = !turn;
-                    }
-                } else {
-                    if (!Os[i]) {
-                        Xs[i] = true;
-                        turn = !turn;
+            Point clickPoint = new Point();
+            clickPoint.x = e.getX();
+            clickPoint.y = e.getY();
+
+            for (int i = 0; i < boardPoints.length; i++) {
+                if (clickPoint.x >= boardPoints[i].x && clickPoint.y >= boardPoints[i].y && clickPoint.x <= boardPoints[i].x + 100 && clickPoint.y <= boardPoints[i].y + 100) {
+                    if (turn) {
+                        if (!Xs[i]) {
+                            Os[i] = true;
+                            for (int[] state : winStates) {
+                                if (Os[state[0]] && Os[state[1]] && Os[state[2]]) {
+                                    results.setLocation(190, 35);
+                                    results.setSize(125, 30);
+                                    results.setFont(results.getFont().deriveFont(30.0f));
+                                    results.setText("O wins!!");
+                                    endGame = true;
+                                    break;
+                                }
+                            }
+                            turn = !turn;
+                        }
+                    } else {
+                        if (!Os[i]) {
+                            Xs[i] = true;
+                            for (int[] state : winStates) {
+                                if (Xs[state[0]] && Xs[state[1]] && Xs[state[2]]) {
+                                    results.setLocation(190, 35);
+                                    results.setSize(125, 30);
+                                    results.setFont(results.getFont().deriveFont(30.0f));
+                                    results.setText("X wins!!");
+                                    endGame = true;
+                                    break;
+                                }
+                            }
+                            turn = !turn;
+                        }
                     }
                 }
             }
+            numTurns++;
+            if (numTurns >= 9 && !endGame) {
+                results.setLocation(160, 35);
+                results.setSize(175, 30);
+                results.setFont(results.getFont().deriveFont(30.0f));
+                results.setText("Cat Game :(");
+                endGame = true;
+            }
         }
-
         repaint();
     }
 
