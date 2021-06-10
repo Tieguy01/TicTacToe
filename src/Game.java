@@ -9,17 +9,20 @@ public class Game {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        frame.add(new BoardPanel());
-
         frame.setSize(525, 550);
         frame.setTitle("Tic-Tac-Toe");
 
         frame.setVisible(true);
     }
 
+    public void playGame() {
+        frame.add(new BoardPanel());
+    }
+
     public static void main(String[] args) {
         System.out.println("Welcome to tic tac toe!");
-        Game board = new Game();
+        Game game = new Game();
+        game.playGame();
     }
 
 }

@@ -3,18 +3,25 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 
-public class BoardPanel extends JPanel implements MouseListener{
+public class BoardPanel extends JPanel implements MouseListener, ActionListener{
 
     private Graphics2D g2D;
 
     private Point[] boardPoints = new Point[9];
-    private boolean[] Os = new boolean[9];
-    private boolean[] Xs = new boolean[9];
+    private boolean[] Os;
+    private boolean[] Xs;
 
+    private boolean turn;
+    private int numTurns;
+    private boolean endGame;
+
+    private int OScore = 0;
+    private int XScore = 0;
+    private int TieScore = 0;
+    
+    private JLabel scoreboard;
     private JLabel results;
-    private boolean turn = true;
-    private int numTurns = 0;
-    private boolean endGame = false;
+    private JButton newGameButton;
 
     private int[][] winStates = {
         {0, 1, 2},
@@ -42,8 +49,29 @@ public class BoardPanel extends JPanel implements MouseListener{
         boardPoints[7] = new Point(200, 300);
         boardPoints[8] = new Point(300, 300);
 
+        scoreboard = new JLabel();
+        scoreboard.setLocation(2, 0);
+        scoreboard.setSize(125, 20);
         results = new JLabel();
+        newGameButton = new JButton("New Game");
+        newGameButton.setBounds(190, 435, 120, 30);
+        newGameButton.addActionListener(this);
+
+        this.add(scoreboard);
         this.add(results);
+        this.add(newGameButton);
+
+        initializeGame();
+    }
+
+    public void initializeGame() {
+        Os = new boolean[9];
+        Xs = new boolean[9];
+        turn = true;
+        numTurns = 0;
+        endGame = false;
+        results.setText("");
+        repaint();
     }
 
     @Override
@@ -68,6 +96,13 @@ public class BoardPanel extends JPanel implements MouseListener{
                 g2D.draw(new Line2D.Double(boardPoints[i].x + 15, boardPoints[i].y + 85, boardPoints[i].x + 85, boardPoints[i].y + 15));
             }
         }
+
+        scoreboard.setText("O: "+ OScore + "   X: "+ XScore + "   Tie: "+ TieScore);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        initializeGame();
     }
 
     @Override
@@ -89,11 +124,13 @@ public class BoardPanel extends JPanel implements MouseListener{
                                     results.setSize(125, 30);
                                     results.setFont(results.getFont().deriveFont(30.0f));
                                     results.setText("O wins!!");
+                                    OScore++;
                                     endGame = true;
                                     break;
                                 }
                             }
                             turn = !turn;
+                            numTurns++;
                         }
                     } else {
                         if (!Os[i]) {
@@ -104,21 +141,24 @@ public class BoardPanel extends JPanel implements MouseListener{
                                     results.setSize(125, 30);
                                     results.setFont(results.getFont().deriveFont(30.0f));
                                     results.setText("X wins!!");
+                                    XScore++;
                                     endGame = true;
                                     break;
                                 }
                             }
                             turn = !turn;
+                            numTurns++;
                         }
                     }
                 }
             }
-            numTurns++;
+
             if (numTurns >= 9 && !endGame) {
                 results.setLocation(160, 35);
                 results.setSize(175, 30);
                 results.setFont(results.getFont().deriveFont(30.0f));
                 results.setText("Cat Game :(");
+                TieScore++;
                 endGame = true;
             }
         }
